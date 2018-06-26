@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>TI Sensor Tag Data</title>
+   <meta charset='utf-8' />
+    <script src="http://www.chartjs.org/dist/2.7.2/Chart.bundle.js"></script>
+    <script src="http://www.chartjs.org/samples/latest/utils.js"></script>
+    <style>
+	canvas{
+		-moz-user-select: none;
+		-webkit-user-select: none;
+		-ms-user-select: none;
+	}
+	</style>
+  </head>
+
+  <body>
+  	<center>
+  		<h1>TI SENSOR TAG DATA</h1>
+  	</center>
+    
+    
+
+    <!--Add buttons to initiate auth sequence and sign out-->
+    <button id="authorize-button" style="display: none;">Authorize</button>
+    <button id="signout-button" style="display: none;">Sign Out</button>
+     
+    <pre id="content"></pre>
+    
+    
+    
+
+    <input id="clickMe" type="button" value="Show Chart" onclick="listMajors2();" />
+<div style="width:50%;">
+		<canvas id="myChart"></canvas>
+	</div>
+
+    <script type="text/javascript">
+      // Client ID and API key from the Developer Console
+      var CLIENT_ID = '947891846550-lu31pktttpaqjueg2j0eceqehhie5m74.apps.googleusercontent.com';
+      var API_KEY = 'AIzaSyDwTjXYWMs0ZyXlk9CAz6hB6AIOLgjgl8g';
+
+      // Array of API discovery doc URLs for APIs used by the quickstart
+      var DISCOVERY_DOCS = ["https://sheets.googleapis.com/$discovery/rest?version=v4"];
+
+      //var DISCOVERY_DOCS = ["https://docs.google.com/spreadsheets/d/1u7E6KTAJJnmxSiov3zFpyxoYGo7DInATSZBgzTpSgYc/edit#gid=0"];
+
+      // Authorization scopes required by the API; multiple scopes can be
+      // included, separated by spaces.
+      var SCOPES = "https://www.googleapis.com/auth/spreadsheets.readonly";
+
+      var authorizeButton = document.getElementById('authorize-button');
+      var signoutButton = document.getElementById('signout-button');
+      
+      /**
+       *  On load, called to load the auth2 library and API client library.
+       */
+      function handleClientLoad() {
+        gapi.load('client:auth2', initClient);
+      }
+
+      /**
+       *  Initializes the API client library and sets up sign-in state
+       *  listeners.
+       */
+      function initClient() {
+        gapi.client.init({
+          apiKey: API_KEY,
+          clientId: CLIENT_ID,
+          discoveryDocs: DISCOVERY_DOCS,
+          scope: SCOPES
+        }).then(function () {
+          // Listen for sign-in state changes.
+          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+          // Handle the initial sign-in state.
+          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+          
+          authorizeButton.onclick = handleAuthClick;
+          signoutButton.onclick = handleSignoutClick;
+        });
+      }
+
+      /**
+       *  Called when the signed in status changes, to update the UI
+       *  appropriately. After a sign-in, the API is called.
+       */
+       
+      
+
+      function updateSigninStatus(isSignedIn) {
+        if (isSignedIn) {
+          authorizeButton.style.display = 'none';
+          signoutButton.style.display = 'block';
+          //update();
+         listMajors();
+        // listMajors2();
+         
+        
+         // window.setInterval(function(){
+ 			
+ 			//plot_chart();
+		// }, 5000);
+         // label_m=["1","2","3","4","5","6","7","8"];
+         // value_y=[10,20,30,40,50,60,70,80];
+         // listMajors2();
+         // plot_chart();
+
+        //  console.log(label_x);
+          //console.log(label_x.length);
+        } else {
+          authorizeButton.style.display = 'block';
+          signoutButton.style.display = 'none';
+        }
+      }
+
+      /**
+       *  Sign in the user upon button click.
+       */
+      function handleAuthClick(event) {
+        gapi.auth2.getAuthInstance().signIn();
+      }
+
+      /**
+       *  Sign out the user upon button click.
+       */
+      function handleSignoutClick(event) {
+        gapi.auth2.getAuthInstance().signOut();
+      }
+
+      /**
+       * Append a pre element to the body containing the given message
+       * as its text node. Used to display the results of the API call.
+       *
+       * @param {string} message Text to be placed in pre element.
+       */
+      function appendPre(message) {
+        var pre = document.getElementById('content');
+        var textContent = document.createTextNode(message + '\n');
+        pre.appendChild(textContent);
+      }
+
+      /**
+       * Print the names and majors of students in a sample spreadsheet:
+       * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
+       */
+      //var label_x = [];
+      //var value_y = [];
+
+      
+      
+       
+
+      function listMajors() {
+
+        gapi.client.sheets.spreadsheets.values.get({
+          spreadsheetId: '1u7E6KTAJJnmxSiov3zFpyxoYGo7DInATSZBgzTpSgYc',
+          range: 'A:N',
+        }).then(function(response) {
+          var range = response.result;
+          if (range.values.length > 0) {
+            //appendPre('Name, Major:');
+            //label_x = [];
+            //value_y = [];
+            for (i = 0; i < range.values.length; i++) {
+
+              var row = range.values[i];
+             // if(i>0){
+               // label_m.push(row[0].toString());
+               // label_x.push(row[0].toString());
+                //console.log(label_x);
+              //  value_y.push(row[1]);
+             // }
+              // Print columns A and E, which correspond to indices 0 and 4.
+              appendPre(row[0] + ', ' + row[1]);
+            }
+            //console.log(label_x);
+          } else {
+            appendPre('No data found.');
+          }
+         // console.log(m);
+         // n=m;
+        }, function(response) {
+          appendPre('Error: ' + response.result.error.message);
+          //console.log(m);
+        });
+        //console.log(n);
+      }
+
+      //console.log(m);
+     // console.log(n);
+      
+        
+     
+      function listMajors2() {
+      	var label_m =[];
+        var am_temp =[];
+        var obj_temp = [];
+        gapi.client.sheets.spreadsheets.values.get({
+          spreadsheetId: '1u7E6KTAJJnmxSiov3zFpyxoYGo7DInATSZBgzTpSgYc',
+          range: 'A:N',
+         // valueInputOption: '',
+        }).then(function(response) {
+        	//console.log(response.result);
+          var range = response.result;
+          if (range.values.length > 0) {
+            //appendPre('Name, Major:');
+            //label_x = [];
+            //value_y = [];
+            for (i = 0; i < range.values.length; i++) {
+
+              var row = range.values[i];
+              if(i>0){
+                label_m.push(row[0].toString());
+               // label_x.push(row[0].toString());
+                //console.log(label_x);
+                am_temp.push(row[1]);
+                obj_temp.push(row[2]);
+              }
+              // Print columns A and E, which correspond to indices 0 and 4.
+			 // appendPre(row[0] + ', ' + row[1]);
+            }
+
+            plot_chart(label_m, am_temp,obj_temp);
+            console.log(label_m);
+          } else {
+            appendPre('No data found.');
+          }
+         // console.log(label_m);
+        }, function(response) {
+          appendPre('Error: ' + response.result.error.message);
+        });
+        console.log(label_m);
+        setTimeout(listMajors2, 5000);
+        //return [label_m, value_y];  
+ 
+      }
+     // var label_2=["January", "February", "March", "April", "May", "June", "July"];
+      //console.log(label_2);
+     // var label_3 = ["1","2","3","4","5","6","7","8"];
+     // console.log(label_3);
+
+     // var label_4 = label_x;
+     // console.log(label_4);
+    // console.log("Data");
+  
+
+   </script>
+     <script async defer src="https://apis.google.com/js/api.js"
+      onload="this.onload=function(){};handleClientLoad()"
+      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+
+    <script type="text/javascript">
+      function plot_chart(){
+      	//console.log(label_m);
+      //	console.log(value_y);
+          var ctx = document.getElementById('myChart').getContext('2d');
+      //console.log(label_x);
+          var chart = new Chart(ctx, {
+    // The type of chart we want to create
+             type: 'line',
+
+    // The data for our dataset
+              data: {
+       // labels: ["January", "February", "March", "April", "May", "June", "July"],
+        //labels: [2,3,5,4,1,2,7,6],
+             labels: arguments[0],
+
+              datasets: [{
+                label: "Ambient Temperature (degC)",
+                //backgroundColor: 'rgb(255, 99, 132)',
+                //borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgb(54, 162, 235)',
+				borderColor: 'rgb(54, 162, 235)',
+             //   data: [0, 10, 5, 2, 20, 30, 45],
+            data: arguments[1],
+            fill: false,
+        },{
+                label: "Object Temperature (degC)",
+                //backgroundColor: 'rgb(255, 99, 132)',
+                //borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgb(255, 99, 132)',
+             //   data: [0, 10, 5, 2, 20, 30, 45],
+            data: arguments[2],
+            fill: false,
+        }]
+    },
+
+    // Configuration options go here
+    options: {
+				responsive: true,
+				title: {
+					display: true,
+					text: 'Chart of Sensor Tag Data '
+				},
+				tooltips: {
+					mode: 'index',
+					intersect: false,
+				},
+				hover: {
+					mode: 'nearest',
+					intersect: true
+				},
+				scales: {
+					xAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Time'
+						}
+					}],
+					yAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Value'
+						}
+					}]
+				}
+			}
+});
+        //  setTimeout(plot_chart, 5000);
+          
+}
+
+</script>
+  
+  
+
+    
+  </body>
+</html>
